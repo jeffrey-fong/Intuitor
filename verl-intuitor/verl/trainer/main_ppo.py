@@ -58,6 +58,8 @@ def run_ppo(config) -> None:
         ray.init(
             runtime_env=PPO_RAY_RUNTIME_ENV,
             num_cpus=config.ray_init.num_cpus,
+            dashboard_host="0.0.0.0",
+            dashboard_port=8265,
         )
 
     # Create a remote instance of the TaskRunner class, and
