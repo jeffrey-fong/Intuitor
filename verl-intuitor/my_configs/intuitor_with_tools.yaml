@@ -1,0 +1,23 @@
+hydra:
+  searchpath:
+    - file://verl/trainer/config
+
+defaults:
+  - ppo_trainer
+  - _self_
+
+data:
+  return_raw_chat: True
+
+actor_rollout_ref:
+  rollout:
+    # Enable multi-turn rollout
+    multi_turn:
+      enable: True
+      max_assistant_turns: 5
+      # Include tools
+      tool_config_path: tool_config/math_tool_config.yaml
+    # Use vllm
+    name: vllm
+    # Use async mode for AgentLoop
+    mode: async

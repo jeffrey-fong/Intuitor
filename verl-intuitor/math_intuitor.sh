@@ -7,7 +7,12 @@ export CUDA_VISIBLE_DEVICES=1,2
 export HF_HOME=$HF_HOME
 export VLLM_USE_V1=1
 
+PROJECT_DIR="$(pwd)"
+CONFIG_PATH="$PROJECT_DIR/my_configs"
+
 PYTHONUNBUFFERED=1 python -m verl.trainer.main_ppo \
+    --config-path="$CONFIG_PATH" \
+    --config-name="intuitor_with_tools" \
     algorithm.adv_estimator=intuitor \
     data.train_files=$HOME/Intuitor/verl-intuitor/data/math/train.parquet \
     data.val_files=$HOME/Intuitor/verl-intuitor/data/math/test.parquet \
@@ -47,5 +52,4 @@ PYTHONUNBUFFERED=1 python -m verl.trainer.main_ppo \
     trainer.experiment_name=math_intuitor \
     trainer.save_freq=10000 \
     trainer.test_freq=10000 \
-    actor_rollout_ref.model.enable_gradient_checkpointing=True \
     trainer.total_epochs=1 2>&1 | tee verl_math_intuitor.log
