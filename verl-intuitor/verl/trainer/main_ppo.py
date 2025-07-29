@@ -17,6 +17,7 @@ Note that we don't combine the main with ray_trainer as ray_trainer is used by o
 
 import os
 import socket
+from typing import Optional
 
 import hydra
 import ray
@@ -215,8 +216,8 @@ class TaskRunner:
         from verl.utils.dataset.rl_dataset import collate_fn
 
         # Create training and validation datasets.
-        train_dataset = create_rl_dataset(config.data.train_files, config.data, tokenizer, processor, is_train=True)
-        val_dataset = create_rl_dataset(config.data.val_files, config.data, tokenizer, processor, is_train=False)
+        train_dataset = create_rl_dataset(config.data.train_files, config.data, tokenizer, processor, config.actor_rollout_ref.rollout.multi_turn.tool_config_path, is_train=True)
+        val_dataset = create_rl_dataset(config.data.val_files, config.data, tokenizer, processor, config.actor_rollout_ref.rollout.multi_turn.tool_config_path, is_train=False)
         train_sampler = create_rl_sampler(config.data, train_dataset)
 
         # Initialize the PPO trainer.
@@ -241,7 +242,7 @@ class TaskRunner:
         trainer.fit()
 
 
-def create_rl_dataset(data_paths, data_config, tokenizer, processor, is_train=True):
+def create_rl_dataset(data_paths, data_config, tokenizer, processor, tool_config_path: Optional[str] = None, is_train=True):
     """Create a dataset.
 
     Arguments:
@@ -249,6 +250,7 @@ def create_rl_dataset(data_paths, data_config, tokenizer, processor, is_train=Tr
         data_config: The data config.
         tokenizer (Tokenizer): The tokenizer.
         processor (Processor): The processor.
+        tool_config_path: The path to the tool config.
 
     Returns:
         dataset (Dataset): The dataset.
@@ -286,6 +288,7 @@ def create_rl_dataset(data_paths, data_config, tokenizer, processor, is_train=Tr
         tokenizer=tokenizer,
         processor=processor,
         config=data_config,
+        tool_config_path=tool_config_path,
     )
 
     return dataset

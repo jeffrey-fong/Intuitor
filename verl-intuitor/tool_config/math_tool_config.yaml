@@ -1,0 +1,23 @@
+tools:
+  - class_name: "verl.tools.math_tool.MathTool"
+    config:
+      type: native
+    tool_schema:
+      type: "function"
+      function:
+        name: "math_calculator"
+        description: "A tool for making mathematical calculations"
+        parameters:
+          type: "object"
+          properties:
+            num1:
+              type: "number"
+              description: "The first number in the calculation"
+            num2:
+              type: "number"
+              description: "The second number in the calculation"
+            operation:
+              type: "string"
+              description: "The operation to perform on the two numbers"
+              enum: ["add", "subtract", "multiply", "divide"]
+          required: ["num1", "num2", "operation"]

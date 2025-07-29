@@ -80,6 +80,7 @@ class RLHFDataset(Dataset):
         tokenizer (PreTrainedTokenizer): For the tokenization of text to token IDs.
         config (DictConfig): Options like cache_dir, prompt_key, max_prompt_length, truncation, etc.
         processor (ProcessorMixin, optional): Multimodal preprocessor for images/videos.
+        tool_config_path: The path to the tool config.
     """
 
     def __init__(
@@ -88,6 +89,7 @@ class RLHFDataset(Dataset):
         tokenizer: PreTrainedTokenizer,
         config: DictConfig,
         processor: Optional[ProcessorMixin] = None,
+        tool_config_path: Optional[str] = None,
     ):
         if not isinstance(data_files, (List, ListConfig)):
             data_files = [data_files]
@@ -116,6 +118,15 @@ class RLHFDataset(Dataset):
         self.filter_prompts = config.get("filter_prompts", True)
         self.serialize_dataset = False
         self.return_multi_modal_inputs = config.get("return_multi_modal_inputs", True)
+        
+        self.tool_config_path = tool_config_path
+        # Load tool configuration if provided
+        self.tools = None
+        if self.tool_config_path:
+            import yaml
+            with open(self.tool_config_path, 'r') as f:
+                tools_config = yaml.safe_load(f)
+            self.tools = [tool_config["tool_schema"] for tool_config in tools_config["tools"]]
 
         self._download()
         self._read_files_and_tokenize()
@@ -168,7 +179,7 @@ class RLHFDataset(Dataset):
             else:
 
                 def doc2len(doc) -> int:
-                    return len(tokenizer.apply_chat_template(doc[prompt_key], add_generation_prompt=True))
+                    return len(tokenizer.apply_chat_template(doc[prompt_key], tools=self.tools, add_generation_prompt=True))
 
             dataframe = dataframe.filter(
                 lambda doc: doc2len(doc) <= self.max_prompt_length,
@@ -262,7 +273,7 @@ class RLHFDataset(Dataset):
                 row_dict["multi_modal_inputs"].pop("second_per_grid_ts", None)
 
         else:
-            raw_prompt = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+            raw_prompt = self.tokenizer.apply_chat_template(messages, tools=self.tools, add_generation_prompt=True, tokenize=False)
             model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=False)
             input_ids = model_inputs.pop("input_ids")
             attention_mask = model_inputs.pop("attention_mask")
