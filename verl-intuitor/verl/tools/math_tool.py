@@ -21,7 +21,7 @@ class MathTool(BaseTool):
     def get_openai_tool_schema(self) -> OpenAIFunctionToolSchema:
         return self.tool_schema
     
-    async def create(self, instance_id: Optional[str], **kwargs) -> str:
+    async def create(self, instance_id: Optional[str] = None, **kwargs) -> str:
         """Create a tool instance.
         
         Args:
@@ -55,7 +55,7 @@ class MathTool(BaseTool):
         num2 = parameters.get("num2")
         operation = parameters.get("operation")
         
-        if not isinstance(num1, float) or not isinstance(num2, float):
+        if type(num1) not in [float, int] or type(num2) not in [float, int]:
             return "Invalid numbers", 0.0, {}
         if operation not in ["add", "subtract", "multiply", "divide"]:
             return "Invalid operation", 0.0, {}
@@ -70,7 +70,7 @@ class MathTool(BaseTool):
             result = num1 * num2
         elif operation == "divide":
             result = num1 / num2
-        return result, 0.0, {}
+        return str(result), 0.0, {}
     
     async def release(self, instance_id: str, **kwargs) -> None:
         """Release the tool instance.

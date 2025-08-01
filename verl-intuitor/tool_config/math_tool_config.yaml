@@ -6,7 +6,7 @@ tools:
       type: "function"
       function:
         name: "math_calculator"
-        description: "A tool for making mathematical calculations"
+        description: "A tool for making simple mathematical arithmetic calculations. Only accepts +, -, *, / operations between two numbers."
         parameters:
           type: "object"
           properties:

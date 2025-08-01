@@ -21,3 +21,8 @@ actor_rollout_ref:
     name: vllm
     # Use async mode for AgentLoop
     mode: async
+    # Set number of workers for AgentLoop
+    agent:
+      num_workers: 4
+    # Model parallelism for rollout
+    tensor_model_parallel_size: 2
